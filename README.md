@@ -29,7 +29,7 @@
 - `git add -A`
 - `git commit -m "Submission for deadline"`
 - `git push origin master`
-- zip up the folder and email to instructors@fullstackacademy.com
+- zip up the folder and email to instructors+assessments@fullstackacademy.com
 
 ## Things you should be aware of
 
