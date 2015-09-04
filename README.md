@@ -2,17 +2,21 @@
 
 ## Logistics
 
-- You have 2 hours. This test was designed to be difficult to finish. Get through as much as you can, and if you get stuck on any spec, try moving on—they're not all cumulative.
-- You may use online resources or notes, but *not* any previous code you've written, nor may you copy/paste from code online.
+- You have 2 hours. This test was designed to be difficult to finish. Get through as much as you can, and if you get stuck on any spec, try moving on – they're not all cumulative.
+- You may refer to online resources or notes, but *not* any previous code you've written, nor the study guide, nor may you copy/paste from outside resources.
+- There are three extra credit possibilities:
+    * The `ng-enter` directive (last spec); `x`'d out to start.
+    * The "cached" `Todo` factory; `x`'d out to start.
+    * Ensuring that your app is actually entirely functional (see below).
 
 ## Getting started
 
 - fork this repo then clone your fork locally
-- `npm install` and `bower install`
+- `npm install && bower install`
 - `npm test` (which starts up testem)
-- open up localhost:7357 for a better UI for the spec results
+- open up [localhost:7357](http://localhost:7357) to view the full HTML report
 - start going through the specs
-- you should only need to edit these files (listed in the order we recommend you tackle them)
+- you should only need to edit the following files. They are listed here in the order we recommend you tackle them, which is the same order they appear in the test report. However, technically speaking they can be solved in any order, so if you get stuck, move on and circle back later.
 	- browser/app/todos/todo.factory.js
 	- browser/app/todos/list/todo.list.controller.js
 	- browser/app/todos/list/todo.list.state.js

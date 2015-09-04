@@ -1,85 +1,114 @@
 'use strict';
-
+/* globals module inject chai todoItemDirective */
 var expect = chai.expect;
 
 describe('Todo item', function () {
 
-	beforeEach(module('angularAssessment'));
+  /*------------------
+      CONFIGURATION
+  /------------------*/
 
-	describe('directive', function () {
+  beforeEach(module('angularAssessment'));
 
-		var ddo;
-		before(function () {
-			ddo = todoItemDirective();
-		});
+  describe('directive `todoItem`', function () {
 
-		it('is an element directive', function () {
-			expect(ddo.restrict).to.equal('E');
-		});
+    var ddo;
+    before(function () {
+      // for future reference, this is not the correct way to
+      // unit test an Angular directive, but in the interest of
+      // assessment clarity we are using this strategy.
+      ddo = todoItemDirective();
+    });
 
-		it('has isolate scope', function () {
-			expect(ddo.scope).to.be.truthy;
-		});
+    /*------------------
+        TEST SPECS
+    /------------------*/
 
-		it('accepts a model parameter "theTodo"', function () {
-			expect(ddo.scope).to.be.an('object');
-			expect(ddo.scope.theTodo).to.equal('=');
-		});
+    it('is an element directive', function () {
+      expect(ddo.restrict).to.equal('E');
+    });
 
-	});
+    it('has isolate scope', function () {
+      expect(ddo.scope).to.be.an('object');
+    });
 
-	describe('controller', function () {
+    it('accepts a model parameter `theTodo`', function () {
+      expect(ddo.scope.theTodo).to.equal('=');
+    });
 
-		var TodoItemCtrl, $scope, Todo, $state;
-		beforeEach(inject(function ($controller, $rootScope, _$state_) {
-			$scope = $rootScope.$new();
-			Todo = {destroy: chai.spy(function () {
-				return {
-					then: function (f) {
-						f();
-					}
-				}
-			})};
-			$state = _$state_;
-			$state.go = function () {
-				$state._mockUrl = $state.href.apply($state, arguments);
-			};
-			TodoItemCtrl = $controller('TodoItemCtrl', {$scope: $scope, Todo: Todo, $state: $state});
-		}));
+  });
 
-		describe('.toggleComplete method', function () {
+  /*------------------
+      CONFIGURATION
+  /------------------*/
 
-			it('toggles the todo\'s .complete field', function () {
-				$scope.theTodo = {complete: false};
-				// if you are curious how this is being used, check out line 6 of todo.item.html
-				$scope.toggleComplete();
-				expect($scope.theTodo.complete).to.equal(true);
-				$scope.toggleComplete();
-				expect($scope.theTodo.complete).to.equal(false);
-			});
+  describe('controller `TodoItemCtrl', function () {
 
-		});
+    var Todo, $scope, $state;
+    beforeEach(inject(function ($controller, $rootScope, _$state_, $q) {
+      // a new scope object we can manipulate directly
+      $scope = $rootScope.$new();
+      // a fake `Todo` factory (doesn't rely on your `Todo` factory)
+      // `destroy` method returns a promise for successful destruction
+      Todo = {
+        destroy: chai.spy(function (id) {
+          return $q.when(id + ' destroyed');
+        })
+      };
+      // replace `$state.go` with a func that sets a `_mockUrl` property
+      $state = _$state_;
+      $state.go = function () {
+        $state._mockUrl = $state.href.apply($state, arguments);
+      };
+      // instantiate the controller and inject our test objects
+      $controller('TodoItemCtrl', {
+        $scope: $scope,
+        Todo: Todo,
+        $state: $state
+      });
+    }));
 
-		describe('.removeTodo method', function () {
+    /*------------------
+        TEST SPECS
+    /------------------*/
 
-			it('uses Todo factory', function () {
-				$scope.theTodo = {_id: 'abc123'};
-				// if you are curious how this is being used, check out line 8 of todo.item.html
-				$scope.removeTodo();
-				expect(Todo.destroy).to.have.been.called.once;
-			});
+    describe('`.toggleComplete` scope method', function () {
 
-			it('after removal, goes to the todo list state', function () {
-				$scope.theTodo = {_id: 'abc123'};
-				$scope.removeTodo();
-				// use $state.go to make this work
-				// $state._mockUrl will be the url *if* the state actually transitioned
-				// but since this is a test spec it does not actually transition
-				expect($state._mockUrl).to.equal('/todos');
-			});
+      it("toggles the todo's `.complete` field", function () {
+        // if you are curious how this is being used,
+        // check out line 6 of todo.item.html
+        $scope.theTodo = { complete: false };
+        $scope.toggleComplete();
+        expect($scope.theTodo.complete).to.equal(true);
+        $scope.toggleComplete();
+        expect($scope.theTodo.complete).to.equal(false);
+      });
 
-		});
+    });
 
-	});
+    describe('`.removeTodo` scope method', function () {
+
+      it('uses the `Todo` factory', function () {
+        // if you are curious how this is being used,
+        // check out line 8 of todo.item.html
+        var uniqueId = {};
+        $scope.theTodo = { _id: uniqueId };
+        $scope.removeTodo();
+        expect(Todo.destroy).to.have.been.called.once.with(uniqueId);
+      });
+
+      it('after removal, goes to the `todos` state', function () {
+        $scope.theTodo = { _id: 'abc123' };
+        $scope.removeTodo();
+        // use `$state.go` to make this work.
+        // We modified `$state.go` to change `$state._mockUrl`
+        // instead of actually transitioning to a new state.
+        $scope.$digest(); // makes settled $q promise call handler
+        expect($state._mockUrl).to.equal('/todos');
+      });
+
+    });
+
+  });
 
 });
